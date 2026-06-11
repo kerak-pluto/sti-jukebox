@@ -13,6 +13,14 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Path prefix routing fallback for Vercel Services
+app.use((req, res, next) => {
+  if (!req.url.startsWith('/api') && req.url !== '/health' && !req.url.startsWith('/health')) {
+    req.url = '/api' + req.url;
+  }
+  next();
+});
+
 // Initialize Supabase Client
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
@@ -373,7 +381,7 @@ app.delete('/api/admin/queue', adminAuth, async (req, res) => {
 });
 
 // Health Check Route
-app.get('/health', (req, res) => {
+app.get(['/health', '/api/health'], (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date() });
 });
 
