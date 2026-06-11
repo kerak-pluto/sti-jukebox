@@ -18,6 +18,15 @@ export default function PlayerDashboard() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(50);
   const [completedCount, setCompletedCount] = useState(0);
+  const [autoplayEnabled, setAutoplayEnabled] = useState(() => {
+    return localStorage.getItem('admin_autoplay_enabled') !== 'false';
+  });
+
+  const isAutoplayingRef = useRef(false);
+
+  useEffect(() => {
+    localStorage.setItem('admin_autoplay_enabled', autoplayEnabled.toString());
+  }, [autoplayEnabled]);
 
   const handleAuthorize = (e) => {
     e.preventDefault();
@@ -54,6 +63,54 @@ export default function PlayerDashboard() {
     queueRef.current = queue;
   }, [queue]);
 
+  const triggerAutoplay = async () => {
+    if (isAutoplayingRef.current) return;
+    isAutoplayingRef.current = true;
+
+    try {
+      const keywords = [
+        'Jay Chou',
+        'Lofi hip hop beats chill',
+        'Synthwave retro beats',
+        'Guzheng traditional Chinese instrumental',
+        'Chinese pop songs classic',
+        'Chill cafe background music',
+        'Acoustic guitar covers',
+        'Tiger and Dragon drum music'
+      ];
+
+      const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
+      console.log('Autoplay fallback triggered. Querying search for:', randomKeyword);
+
+      const searchRes = await fetch(`${backendUrl}/api/search-songs?q=${encodeURIComponent(randomKeyword)}`);
+      if (!searchRes.ok) throw new Error('Search failed');
+      const results = await searchRes.json();
+
+      if (results && results.length > 0) {
+        const randomTrack = results[Math.floor(Math.random() * Math.min(results.length, 3))];
+        console.log('Autoplay selected song:', randomTrack.title, 'by', randomTrack.artist);
+
+        const queueRes = await fetch(`${backendUrl}/api/queue-song`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ link: `https://www.youtube.com/watch?v=${randomTrack.id}` })
+        });
+
+        if (!queueRes.ok) {
+          throw new Error('Failed to queue fallback song');
+        }
+      }
+    } catch (err) {
+      console.error('Autoplay fallback queue error:', err);
+    } finally {
+      setTimeout(() => {
+        isAutoplayingRef.current = false;
+      }, 5000);
+    }
+  };
+
   // Fetch queue initially and count completed songs
   const fetchQueue = async () => {
     const { data, error } = await supabase
@@ -75,6 +132,8 @@ export default function PlayerDashboard() {
       const oldestQueued = data.find(s => s.status === 'queued');
       if (oldestQueued) {
         await startSong(oldestQueued.id);
+      } else if (autoplayEnabled) {
+        await triggerAutoplay();
       }
     }
   };
@@ -132,6 +191,12 @@ export default function PlayerDashboard() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    if (autoplayEnabled && queue.length === 0) {
+      fetchQueue();
+    }
+  }, [autoplayEnabled]);
 
   // --- YouTube IFrame API Initialization ---
   useEffect(() => {
@@ -538,6 +603,23 @@ export default function PlayerDashboard() {
                   Clear Queue
                 </button>
               )}
+            </div>
+
+            {/* Autoplay Fallback Toggle */}
+            <div className="mb-4 bg-dark/30 border border-dark-border/40 rounded-xl p-3 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-white">Autoplay Fallback</span>
+                <span className="text-[10px] text-slate-400">Play fallback songs when queue is empty</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={autoplayEnabled}
+                  onChange={(e) => setAutoplayEnabled(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-pink peer-checked:after:bg-white peer-checked:after:border-transparent"></div>
+              </label>
             </div>
 
             {/* Scrollable Tracks container */}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabaseClient';
-import { Disc, ListMusic, Volume2, Sparkles, Tv, Music, QrCode } from 'lucide-react';
+import { Disc, ListMusic, Volume2, Sparkles, Tv, Music, QrCode, Maximize2, Minimize2 } from 'lucide-react';
 
 // Helper to clean uploader/video titles from YouTube links to get high-accuracy matches on LRCLIB
 const cleanLyricsSearchQuery = (artist, title, sourceType) => {
@@ -51,6 +51,7 @@ export default function PublicJukebox() {
 
   // Lyrics and synchronization state
   const [currentTime, setCurrentTime] = useState(0);
+  const [isLyricsExpanded, setIsLyricsExpanded] = useState(false);
   const [lyricsState, setLyricsState] = useState({
     loading: false,
     synced: [],
@@ -339,9 +340,19 @@ export default function PublicJukebox() {
             <div className="glass rounded-2xl p-6 border border-brand-purple/20 shadow-[0_0_30px_-5px_rgba(217,37,52,0.1)] relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-brand-purple/5 rounded-full blur-2xl -mr-6 -mt-6"></div>
               
-              <div className="flex items-center gap-2 mb-4 border-b border-dark-border/30 pb-2">
-                <Music className="w-5 h-5 text-brand-pink" />
-                <h3 className="text-md font-bold text-white">Song Lyrics</h3>
+              <div className="flex items-center justify-between mb-4 border-b border-dark-border/30 pb-2">
+                <div className="flex items-center gap-2">
+                  <Music className="w-5 h-5 text-brand-pink" />
+                  <h3 className="text-md font-bold text-white">Song Lyrics</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsLyricsExpanded(!isLyricsExpanded)}
+                  className="p-1.5 hover:bg-dark-accent/40 rounded-lg text-slate-400 hover:text-brand-pink transition-all cursor-pointer flex items-center justify-center"
+                  title={isLyricsExpanded ? "Collapse Lyrics" : "Expand Lyrics"}
+                >
+                  {isLyricsExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                </button>
               </div>
 
               {lyricsState.loading ? (
@@ -357,10 +368,12 @@ export default function PublicJukebox() {
                 /* Synced Lyrics Scroll Area */
                 <div 
                   ref={scrollContainerRef}
-                  className="h-64 overflow-y-auto pr-2 relative scroll-smooth flex flex-col items-center"
+                  className={`overflow-y-auto pr-2 relative scroll-smooth flex flex-col items-center transition-all duration-500 ease-in-out ${
+                    isLyricsExpanded ? 'h-[520px]' : 'h-64'
+                  }`}
                   style={{ 
-                    maskImage: 'linear-gradient(to bottom, transparent, white 20%, white 80%, transparent)',
-                    WebkitMaskImage: 'linear-gradient(to bottom, transparent, white 20%, white 80%, transparent)'
+                    maskImage: 'linear-gradient(to bottom, transparent, white 15%, white 85%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, transparent, white 15%, white 85%, transparent)'
                   }}
                 >
                   <div className="py-24 w-full flex flex-col items-center">
@@ -384,7 +397,9 @@ export default function PublicJukebox() {
                 </div>
               ) : lyricsState.plain ? (
                 /* Plain Static Lyrics Scroll Area */
-                <div className="h-64 overflow-y-auto pr-2 text-center">
+                <div className={`overflow-y-auto pr-2 text-center transition-all duration-500 ease-in-out ${
+                  isLyricsExpanded ? 'h-[520px]' : 'h-64'
+                }`}>
                   <div className="py-4 whitespace-pre-line text-slate-300 text-base font-bold font-display tracking-tight leading-relaxed">
                     {lyricsState.plain}
                   </div>
