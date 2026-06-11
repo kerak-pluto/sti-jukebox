@@ -179,6 +179,57 @@ const SPOTIFY_REGEX = /open\.spotify\.com\/track\/([a-zA-Z0-9]{22})/;
 
 // --- API Endpoints ---
 
+// Search songs via YouTube API
+app.get('/api/search-songs', async (req, res) => {
+  const { q } = req.query;
+
+  if (!q) {
+    return res.status(400).json({ error: 'Search query is required' });
+  }
+
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  if (!apiKey || apiKey === 'your_youtube_api_key') {
+    return res.status(500).json({ error: 'YouTube API key is not configured' });
+  }
+
+  try {
+    const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+      params: {
+        part: 'snippet',
+        q: q,
+        type: 'video',
+        maxResults: 6,
+        key: apiKey,
+      },
+    });
+
+    const items = response.data.items || [];
+    
+    // HTML entity decoder helper
+    const decodeHtml = (html) => {
+      return html
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&apos;/g, "'");
+    };
+
+    const results = items.map(item => ({
+      id: item.id.videoId,
+      title: decodeHtml(item.snippet.title),
+      artist: decodeHtml(item.snippet.channelTitle),
+      thumbnail: item.snippet.thumbnails?.default?.url || '',
+    }));
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error('YouTube Search API Error:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to search songs from YouTube' });
+  }
+});
+
 // Resolve and Queue a song
 app.post('/api/queue-song', async (req, res) => {
   const { link } = req.body;
