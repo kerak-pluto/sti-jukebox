@@ -4,15 +4,15 @@
 @theme {
   --font-sans: 'Inter', sans-serif;
   
-  --color-dark: #0B0F19;
-  --color-dark-card: #161C2E;
-  --color-dark-accent: #1F2A45;
-  --color-dark-border: #2C3A5E;
+  --color-dark: #0A0102;
+  --color-dark-card: #1C0508;
+  --color-dark-accent: #330A0F;
+  --color-dark-border: #4D1117;
 
-  --color-brand-purple: #A855F7;
-  --color-brand-pink: #EC4899;
-  --color-brand-cyan: #06B6D4;
-  --color-brand-emerald: #10B981;
+  --color-brand-purple: #D92534; /* Chinese Red */
+  --color-brand-pink: #D4AF37;   /* Gold */
+  --color-brand-cyan: #F59E0B;   /* Amber Gold */
+  --color-brand-emerald: #059669; /* Jade Green */
 
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-spin-slow: spin 12s linear infinite;
@@ -20,9 +20,9 @@
 
 @layer base {
   body {
-    background: radial-gradient(circle at top right, rgba(168, 85, 247, 0.15), transparent 45%),
-                radial-gradient(circle at bottom left, rgba(6, 182, 212, 0.15), transparent 45%),
-                #0B0F19;
+    background: linear-gradient(rgba(10, 1, 2, 0.82), rgba(10, 1, 2, 0.88)),
+                url('./assets/chinese_bg.png') no-repeat center center fixed;
+    background-size: cover;
     min-height: 100vh;
   }
 }
@@ -33,22 +33,22 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: #0A0102;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1F2A45;
+  background: #330A0F;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #A855F7;
+  background: #D92534;
 }
 
 /* Glassmorphism utilities */
 .glass {
-  background: rgba(22, 28, 46, 0.65);
+  background: rgba(28, 5, 8, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(44, 58, 94, 0.5);
+  border: 1px solid rgba(77, 17, 23, 0.5);
 }
 
 .glass-card-hover {
@@ -56,27 +56,27 @@
 }
 .glass-card-hover:hover {
   transform: translateY(-2px);
-  background: rgba(31, 42, 69, 0.75);
-  border-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.25);
+  background: rgba(51, 10, 15, 0.75);
+  border-color: rgba(217, 37, 52, 0.5);
+  box-shadow: 0 10px 30px -10px rgba(217, 37, 52, 0.25);
 }
 
 .glass-glow-purple {
-  box-shadow: 0 0 30px -5px rgba(168, 85, 247, 0.25);
+  box-shadow: 0 0 30px -5px rgba(217, 37, 52, 0.25);
 }
 
 .glass-glow-pink {
-  box-shadow: 0 0 30px -5px rgba(236, 72, 153, 0.25);
+  box-shadow: 0 0 30px -5px rgba(212, 175, 55, 0.25);
 }
 
 .glass-glow-cyan {
-  box-shadow: 0 0 30px -5px rgba(6, 182, 212, 0.25);
+  box-shadow: 0 0 30px -5px rgba(245, 158, 11, 0.25);
 }
 
 .text-glow {
-  text-glow: 0 0 8px rgba(168, 85, 247, 0.4);
+  text-shadow: 0 0 8px rgba(217, 37, 52, 0.4);
 }
 
 .text-glow-cyan {
-  text-glow: 0 0 8px rgba(6, 182, 212, 0.4);
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
 }
