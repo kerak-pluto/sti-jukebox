@@ -425,10 +425,10 @@ export default function PlayerDashboard() {
       </div>
 
       {/* Main Panel grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         
         {/* Left 2 Columns: Player Container */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="md:col-span-1 lg:col-span-2 space-y-6">
           <div className="glass rounded-2xl p-6 glass-glow-cyan border border-brand-cyan/25 overflow-hidden">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <Disc className={`w-6 h-6 text-brand-cyan ${isPlaying ? 'animate-spin-slow' : ''}`} />
@@ -454,7 +454,7 @@ export default function PlayerDashboard() {
 
             {/* Current Song Details and Active Playback Controls */}
             {currentSong && (
-              <div className="mt-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="mt-5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div className="min-w-0">
                   <span className="text-[10px] font-extrabold tracking-widest text-brand-cyan bg-brand-cyan/15 px-2.5 py-1 rounded-full uppercase">
                     Playing Live
@@ -464,7 +464,7 @@ export default function PlayerDashboard() {
                 </div>
 
                 {/* Control Panel */}
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                <div className="flex items-center gap-3 w-full lg:w-auto justify-end">
                   {/* Volume Slider */}
                   <div className="flex items-center gap-2 mr-3 bg-dark/40 border border-dark-border/40 rounded-xl px-3 py-2 shrink-0">
                     <Volume2 className="w-4 h-4 text-slate-400" />
