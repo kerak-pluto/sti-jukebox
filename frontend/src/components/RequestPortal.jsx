@@ -32,7 +32,7 @@ export default function RequestPortal() {
     setLoading(true);
 
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
       const response = await fetch(`${backendUrl}/api/queue-song`, {
         method: 'POST',
         headers: {

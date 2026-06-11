@@ -5,6 +5,8 @@ import {
   Tv, Volume2, Database, Disc, Sparkles, Lock
 } from 'lucide-react';
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+
 export default function PlayerDashboard() {
   const [isAuthorized, setIsAuthorized] = useState(() => {
     return localStorage.getItem('admin_authorized') === 'true';
@@ -97,7 +99,6 @@ export default function PlayerDashboard() {
   };
 
   const startSong = async (id) => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
     try {
       await fetch(`${backendUrl}/api/admin/start-song`, {
         method: 'POST',
@@ -235,7 +236,6 @@ export default function PlayerDashboard() {
   // Playback Control actions
   const handlePlayPause = async () => {
     if (!currentSong) return;
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
     const endpoint = currentSong.status === 'playing' ? 'pause-song' : 'resume-song';
     try {
       await fetch(`${backendUrl}/api/admin/${endpoint}`, {
@@ -251,7 +251,6 @@ export default function PlayerDashboard() {
   const handleSongEnded = async () => {
     const active = currentSongRef.current;
     if (active) {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       try {
         await fetch(`${backendUrl}/api/admin/end-song`, {
           method: 'POST',
@@ -273,7 +272,6 @@ export default function PlayerDashboard() {
   const handleSkip = async () => {
     const active = currentSongRef.current;
     if (active) {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       try {
         await fetch(`${backendUrl}/api/admin/skip-song`, {
           method: 'POST',
@@ -295,7 +293,6 @@ export default function PlayerDashboard() {
     if (currentSong && currentSong.id === id) {
       await handleSkip();
     } else {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       try {
         await fetch(`${backendUrl}/api/admin/song/${id}`, {
           method: 'DELETE',
@@ -309,7 +306,6 @@ export default function PlayerDashboard() {
 
   const handleClearQueue = async () => {
     if (window.confirm('Are you sure you want to clear the entire queue?')) {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       try {
         await fetch(`${backendUrl}/api/admin/queue`, {
           method: 'DELETE',

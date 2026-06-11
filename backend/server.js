@@ -378,6 +378,11 @@ app.get('/health', (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`Jukebox backend listening at http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Jukebox backend listening at http://localhost:${PORT}`);
+  });
+}
+
+export default app;
+
