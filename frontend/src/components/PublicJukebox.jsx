@@ -334,62 +334,6 @@ export default function PublicJukebox() {
         
         {/* Left Side (2/3): Theater Player */}
         <div className="md:col-span-1 lg:col-span-2 space-y-6">
-          <div className="glass rounded-2xl p-6 border border-brand-cyan/20 shadow-[0_0_40px_-10px_rgba(6,182,212,0.15)] relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan/5 rounded-full blur-3xl -mr-6 -mt-6"></div>
-            
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2.5">
-              <Tv className="w-6 h-6 text-brand-cyan" />
-              Theater Screen
-            </h2>
-
-            {/* Giant Theater Mode Aspect Widescreen Player */}
-            <div className="aspect-video w-full bg-dark/90 rounded-xl overflow-hidden border-2 border-brand-cyan/30 shadow-[0_0_30px_-5px_rgba(6,182,212,0.25)] relative">
-              <div id="public-yt-player" className="w-full h-full"></div>
-              
-              {!currentSong && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-dark/95 z-10">
-                  <div className="w-16 h-16 rounded-full bg-dark-accent/40 flex items-center justify-center mb-4 text-slate-600 border border-dark-border">
-                    <Music className="w-8 h-8" />
-                  </div>
-                  <h4 className="text-lg font-bold text-white">No active track</h4>
-                  <p className="text-xs text-slate-400 max-w-xs mt-1">
-                    Scan the QR code to request a song and trigger live playback.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Theater Mode Metacard (No Admin Play/Pause or Skip Buttons) */}
-            {currentSong && (
-              <div className="mt-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                <div className="min-w-0 flex-1">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-cyan/15 border border-brand-cyan/25">
-                    <Disc className="w-3.5 h-3.5 text-brand-cyan animate-spin-slow" />
-                    <span className="text-[10px] font-extrabold tracking-widest text-brand-cyan uppercase">
-                      ON AIR
-                    </span>
-                  </div>
-                  <h3 className="text-2xl font-black text-white mt-3 truncate tracking-tight">{currentSong.title}</h3>
-                  <p className="text-sm text-slate-400 truncate mt-1">{currentSong.artist}</p>
-                </div>
-
-                {/* Local Spectator Volume Control */}
-                <div className="flex items-center gap-2.5 bg-dark/60 border border-dark-border/60 rounded-xl px-4 py-2.5 shrink-0 self-stretch lg:self-auto justify-center">
-                  <Volume2 className="w-4 h-4 text-slate-400" />
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    className="w-24 accent-brand-cyan h-1 cursor-pointer bg-dark-border"
-                  />
-                  <span className="text-[10px] font-bold text-slate-400 w-6 text-right">{volume}%</span>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Lyrics Panel Card */}
           {currentSong && (
             <div className="glass rounded-2xl p-6 border border-brand-purple/20 shadow-[0_0_30px_-5px_rgba(217,37,52,0.1)] relative overflow-hidden">
@@ -452,6 +396,62 @@ export default function PublicJukebox() {
               )}
             </div>
           )}
+
+          <div className="glass rounded-2xl p-6 border border-brand-cyan/20 shadow-[0_0_40px_-10px_rgba(6,182,212,0.15)] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan/5 rounded-full blur-3xl -mr-6 -mt-6"></div>
+            
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2.5">
+              <Tv className="w-6 h-6 text-brand-cyan" />
+              Theater Screen
+            </h2>
+
+            {/* Giant Theater Mode Aspect Widescreen Player */}
+            <div className="aspect-video w-full bg-dark/90 rounded-xl overflow-hidden border-2 border-brand-cyan/30 shadow-[0_0_30px_-5px_rgba(6,182,212,0.25)] relative">
+              <div id="public-yt-player" className="w-full h-full"></div>
+              
+              {!currentSong && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-dark/95 z-10">
+                  <div className="w-16 h-16 rounded-full bg-dark-accent/40 flex items-center justify-center mb-4 text-slate-600 border border-dark-border">
+                    <Music className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-lg font-bold text-white">No active track</h4>
+                  <p className="text-xs text-slate-400 max-w-xs mt-1">
+                    Scan the QR code to request a song and trigger live playback.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Theater Mode Metacard (No Admin Play/Pause or Skip Buttons) */}
+            {currentSong && (
+              <div className="mt-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-cyan/15 border border-brand-cyan/25">
+                    <Disc className="w-3.5 h-3.5 text-brand-cyan animate-spin-slow" />
+                    <span className="text-[10px] font-extrabold tracking-widest text-brand-cyan uppercase">
+                      ON AIR
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-black text-white mt-3 truncate tracking-tight">{currentSong.title}</h3>
+                  <p className="text-sm text-slate-400 truncate mt-1">{currentSong.artist}</p>
+                </div>
+
+                {/* Local Spectator Volume Control */}
+                <div className="flex items-center gap-2.5 bg-dark/60 border border-dark-border/60 rounded-xl px-4 py-2.5 shrink-0 self-stretch lg:self-auto justify-center">
+                  <Volume2 className="w-4 h-4 text-slate-400" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    className="w-24 accent-brand-cyan h-1 cursor-pointer bg-dark-border"
+                  />
+                  <span className="text-[10px] font-bold text-slate-400 w-6 text-right">{volume}%</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Side (1/3): QR Code & Read-Only Queue Lineup */}
