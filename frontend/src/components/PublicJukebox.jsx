@@ -282,20 +282,31 @@ export default function PublicJukebox() {
 
   // Auto-scroll active lyric line to center of container
   useEffect(() => {
-    if (activeLineRef.current && scrollContainerRef.current) {
-      const activeEl = activeLineRef.current;
-      const container = scrollContainerRef.current;
-      
-      const containerHeight = container.clientHeight;
-      const activeOffsetTop = activeEl.offsetTop;
-      const activeHeight = activeEl.clientHeight;
-      
-      container.scrollTo({
-        top: activeOffsetTop - containerHeight / 2 + activeHeight / 2,
-        behavior: 'smooth'
-      });
+    const centerActiveLine = () => {
+      if (activeLineRef.current && scrollContainerRef.current) {
+        const activeEl = activeLineRef.current;
+        const container = scrollContainerRef.current;
+        
+        const containerHeight = container.clientHeight;
+        const activeOffsetTop = activeEl.offsetTop;
+        const activeHeight = activeEl.clientHeight;
+        
+        container.scrollTo({
+          top: activeOffsetTop - containerHeight / 2 + activeHeight / 2,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    centerActiveLine();
+
+    // Trigger re-centering at intervals during expansion transition
+    if (isLyricsExpanded !== undefined) {
+      const timeouts = [50, 150, 300, 500];
+      const timerIds = timeouts.map(delay => setTimeout(centerActiveLine, delay));
+      return () => timerIds.forEach(clearTimeout);
     }
-  }, [activeLineIndex]);
+  }, [activeLineIndex, isLyricsExpanded]);
 
   const handleVolumeChange = (e) => {
     const val = parseInt(e.target.value, 10);
@@ -333,12 +344,14 @@ export default function PublicJukebox() {
       {/* Main Grid: Player vs Queue */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         
-        {/* Left Side (2/3): Theater Player */}
-        <div className="md:col-span-1 lg:col-span-2 space-y-6">
+        {/* Left Side: Theater Player & Lyrics (fills width dynamically when expanded) */}
+        <div className={`space-y-6 transition-all duration-500 ease-in-out ${
+          isLyricsExpanded ? 'col-span-1 md:col-span-2 lg:col-span-3' : 'col-span-1 md:col-span-1 lg:col-span-2'
+        }`}>
           {/* Lyrics Panel Card */}
           {currentSong && (
             <div className="glass rounded-2xl p-6 border border-brand-purple/20 shadow-[0_0_30px_-5px_rgba(217,37,52,0.1)] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-brand-purple/5 rounded-full blur-2xl -mr-6 -mt-6"></div>
+              <div className="absolute top-0 right-0 w-24 h-24 bg-brand-purple/5 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none"></div>
               
               <div className="flex items-center justify-between mb-4 border-b border-dark-border/30 pb-2">
                 <div className="flex items-center gap-2">
@@ -413,7 +426,7 @@ export default function PublicJukebox() {
           )}
 
           <div className="glass rounded-2xl p-6 border border-brand-cyan/20 shadow-[0_0_40px_-10px_rgba(6,182,212,0.15)] relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan/5 rounded-full blur-3xl -mr-6 -mt-6"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-cyan/5 rounded-full blur-3xl -mr-6 -mt-6 pointer-events-none"></div>
             
             <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2.5">
               <Tv className="w-6 h-6 text-brand-cyan" />
@@ -469,8 +482,12 @@ export default function PublicJukebox() {
           </div>
         </div>
 
-        {/* Right Side (1/3): QR Code & Read-Only Queue Lineup */}
-        <div className="space-y-6 md:sticky md:top-24 h-fit">
+        {/* Right Side: QR Code & Read-Only Queue Lineup */}
+        <div className={`transition-all duration-500 ease-in-out ${
+          isLyricsExpanded 
+            ? 'col-span-1 md:col-span-2 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-8 space-y-0 h-fit' 
+            : 'col-span-1 md:col-span-1 lg:col-span-1 md:sticky md:top-24 h-fit space-y-6'
+        }`}>
           
           {/* QR Code Container */}
           <div className="glass rounded-2xl p-6 border border-dark-border/40 text-center relative overflow-hidden">

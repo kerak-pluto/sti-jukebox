@@ -21,12 +21,19 @@ export default function PlayerDashboard() {
   const [autoplayEnabled, setAutoplayEnabled] = useState(() => {
     return localStorage.getItem('admin_autoplay_enabled') !== 'false';
   });
+  const [autoplayKeywords, setAutoplayKeywords] = useState(() => {
+    return localStorage.getItem('admin_autoplay_keywords') || 'Jay Chou, Lofi hip hop beats chill, Synthwave retro beats, Guzheng traditional Chinese instrumental';
+  });
 
   const isAutoplayingRef = useRef(false);
 
   useEffect(() => {
     localStorage.setItem('admin_autoplay_enabled', autoplayEnabled.toString());
   }, [autoplayEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem('admin_autoplay_keywords', autoplayKeywords);
+  }, [autoplayKeywords]);
 
   const handleAuthorize = (e) => {
     e.preventDefault();
@@ -63,12 +70,17 @@ export default function PlayerDashboard() {
     queueRef.current = queue;
   }, [queue]);
 
-  const triggerAutoplay = async () => {
-    if (isAutoplayingRef.current) return;
+  const triggerAutoplay = async (force = false) => {
+    if (!force && isAutoplayingRef.current) return;
     isAutoplayingRef.current = true;
 
     try {
-      const keywords = [
+      const userKeywords = autoplayKeywords
+        .split(',')
+        .map(k => k.trim())
+        .filter(k => k.length > 0);
+
+      const defaultPool = [
         'Jay Chou',
         'Lofi hip hop beats chill',
         'Synthwave retro beats',
@@ -79,8 +91,9 @@ export default function PlayerDashboard() {
         'Tiger and Dragon drum music'
       ];
 
-      const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
-      console.log('Autoplay fallback triggered. Querying search for:', randomKeyword);
+      const activePool = userKeywords.length > 0 ? userKeywords : defaultPool;
+      const randomKeyword = activePool[Math.floor(Math.random() * activePool.length)];
+      console.log('Autoplay fallback triggered (forced:', force, '). Querying search for:', randomKeyword);
 
       const searchRes = await fetch(`${backendUrl}/api/search-songs?q=${encodeURIComponent(randomKeyword)}`);
       if (!searchRes.ok) throw new Error('Search failed');
@@ -95,7 +108,10 @@ export default function PlayerDashboard() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ link: `https://www.youtube.com/watch?v=${randomTrack.id}` })
+          body: JSON.stringify({ 
+            link: `https://www.youtube.com/watch?v=${randomTrack.id}`,
+            requestedBy: 'Autoplay'
+          })
         });
 
         if (!queueRes.ok) {
@@ -109,6 +125,14 @@ export default function PlayerDashboard() {
         isAutoplayingRef.current = false;
       }, 5000);
     }
+  };
+
+  const getNextSong = (trackList) => {
+    let next = trackList.find(s => s.status === 'queued' && s.requested_by !== 'Autoplay');
+    if (!next) {
+      next = trackList.find(s => s.status === 'queued');
+    }
+    return next;
   };
 
   // Fetch queue initially and count completed songs
@@ -126,10 +150,30 @@ export default function PlayerDashboard() {
 
     setQueue(data);
 
-    // Auto-play the oldest queued song if nothing is currently playing or paused
     const playingSong = data.find(s => s.status === 'playing' || s.status === 'paused');
-    if (!playingSong) {
-      const oldestQueued = data.find(s => s.status === 'queued');
+    const hasGuestRequest = data.some(s => s.status === 'queued' && s.requested_by !== 'Autoplay');
+
+    if (playingSong) {
+      // Immediate transition: guest requested a song while autoplay fallback is active
+      if (playingSong.requested_by === 'Autoplay' && hasGuestRequest) {
+        console.log('Immediate transition: guest requested a song while fallback is active. Skipping:', playingSong.title);
+        try {
+          await fetch(`${backendUrl}/api/admin/skip-song`, {
+            method: 'POST',
+            headers: getAdminHeaders(),
+            body: JSON.stringify({ id: playingSong.id }),
+          });
+
+          const oldestQueued = getNextSong(data);
+          if (oldestQueued) {
+            await startSong(oldestQueued.id);
+          }
+        } catch (err) {
+          console.error('Failed to immediately skip fallback song:', err);
+        }
+      }
+    } else {
+      const oldestQueued = getNextSong(data);
       if (oldestQueued) {
         await startSong(oldestQueued.id);
       } else if (autoplayEnabled) {
@@ -324,7 +368,7 @@ export default function PlayerDashboard() {
         });
 
         const activeQueue = queueRef.current;
-        const nextSong = activeQueue.find(s => s.status === 'queued');
+        const nextSong = getNextSong(activeQueue);
         if (nextSong) {
           await startSong(nextSong.id);
         }
@@ -344,7 +388,8 @@ export default function PlayerDashboard() {
           body: JSON.stringify({ id: active.id }),
         });
 
-        const nextSong = queue.find(s => s.status === 'queued');
+        const activeQueue = queueRef.current;
+        const nextSong = getNextSong(activeQueue);
         if (nextSong) {
           await startSong(nextSong.id);
         }
@@ -392,7 +437,7 @@ export default function PlayerDashboard() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[75vh] px-4">
         <div className="w-full max-w-md glass rounded-2xl p-8 glass-glow-pink text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-brand-pink/10 rounded-full blur-2xl -mr-6 -mt-6"></div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-brand-pink/10 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none"></div>
           
           <div className="inline-flex items-center justify-center p-3.5 bg-brand-pink/25 text-brand-pink rounded-full mb-5 animate-pulse-slow">
             <Lock className="w-8 h-8" />
@@ -606,20 +651,49 @@ export default function PlayerDashboard() {
             </div>
 
             {/* Autoplay Fallback Toggle */}
-            <div className="mb-4 bg-dark/30 border border-dark-border/40 rounded-xl p-3 flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-white">Autoplay Fallback</span>
-                <span className="text-[10px] text-slate-400">Play fallback songs when queue is empty</span>
+            <div className="mb-4 bg-dark/30 border border-dark-border/40 rounded-xl p-3 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-white">Autoplay Fallback</span>
+                  <span className="text-[10px] text-slate-400">Play fallback songs when queue is empty</span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={autoplayEnabled}
+                    onChange={(e) => setAutoplayEnabled(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-pink peer-checked:after:bg-white peer-checked:after:border-transparent"></div>
+                </label>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={autoplayEnabled}
-                  onChange={(e) => setAutoplayEnabled(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-dark-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-pink peer-checked:after:bg-white peer-checked:after:border-transparent"></div>
-              </label>
+
+              {autoplayEnabled && (
+                <div className="space-y-1.5 border-t border-dark-border/20 pt-2.5">
+                  <label htmlFor="autoplay-keywords" className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    Fallback Keywords (comma-separated)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      id="autoplay-keywords"
+                      value={autoplayKeywords}
+                      onChange={(e) => setAutoplayKeywords(e.target.value)}
+                      placeholder="e.g. Jay Chou, Lofi beats, Synthwave"
+                      className="block flex-1 rounded-lg border border-dark-border bg-dark/50 py-1.5 px-3 text-xs text-white placeholder-slate-500 focus:border-brand-pink focus:outline-none focus:ring-1 focus:ring-brand-pink transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => triggerAutoplay(true)}
+                      className="px-3 py-1.5 bg-brand-pink/20 hover:bg-brand-pink hover:text-white text-brand-pink rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                      title="Trigger autoplay search immediately"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Queue Now
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Scrollable Tracks container */}

@@ -232,7 +232,7 @@ app.get('/api/search-songs', async (req, res) => {
 
 // Resolve and Queue a song
 app.post('/api/queue-song', async (req, res) => {
-  const { link } = req.body;
+  const { link, requestedBy } = req.body;
 
   if (!link) {
     return res.status(400).json({ error: 'Song link is required' });
@@ -277,7 +277,7 @@ app.post('/api/queue-song', async (req, res) => {
           youtube_video_id: youtubeId,
           status: 'queued',
           source_type: spMatch ? 'spotify' : 'youtube',
-          requested_by: 'Guest',
+          requested_by: requestedBy || 'Guest',
         }
       ])
       .select();

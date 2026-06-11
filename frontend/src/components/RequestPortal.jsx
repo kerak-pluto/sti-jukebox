@@ -127,8 +127,8 @@ export default function RequestPortal() {
       {/* Main Request Form Card */}
       <div className="w-full max-w-md glass rounded-2xl p-6 glass-glow-purple relative overflow-hidden">
         {/* Subtle decorative glow */}
-        <div className="absolute top-0 right-0 w-24 h-24 bg-brand-cyan/10 rounded-full blur-2xl -mr-6 -mt-6"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-brand-purple/10 rounded-full blur-2xl -ml-6 -mb-6"></div>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-brand-cyan/10 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-brand-purple/10 rounded-full blur-2xl -ml-6 -mb-6 pointer-events-none"></div>
 
         {success ? (
           /* Success State View */
