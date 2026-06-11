@@ -455,7 +455,7 @@ export default function PublicJukebox() {
         </div>
 
         {/* Right Side (1/3): QR Code & Read-Only Queue Lineup */}
-        <div className="space-y-6">
+        <div className="space-y-6 md:sticky md:top-24 h-fit">
           
           {/* QR Code Container */}
           <div className="glass rounded-2xl p-6 border border-dark-border/40 text-center relative overflow-hidden">
