@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabaseClient';
-import { 
-  Play, Pause, SkipForward, Trash2, ListMusic, QrCode, 
+import {
+  Play, Pause, SkipForward, Trash2, ListMusic, QrCode,
   Tv, Volume2, Database, Disc, Sparkles, Lock
 } from 'lucide-react';
 
@@ -22,7 +22,7 @@ export default function PlayerDashboard() {
     return localStorage.getItem('admin_autoplay_enabled') !== 'false';
   });
   const [autoplayKeywords, setAutoplayKeywords] = useState(() => {
-    return localStorage.getItem('admin_autoplay_keywords') || 'Jay Chou, Lofi hip hop beats chill, Synthwave retro beats, Guzheng traditional Chinese instrumental';
+    return localStorage.getItem('admin_autoplay_keywords') || 'Latest trending pop song Indonesia';
   });
 
   const isAutoplayingRef = useRef(false);
@@ -108,7 +108,7 @@ export default function PlayerDashboard() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             link: `https://www.youtube.com/watch?v=${randomTrack.id}`,
             requestedBy: 'Autoplay'
           })
@@ -187,7 +187,7 @@ export default function PlayerDashboard() {
       .from('songs_queue')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'completed');
-    
+
     if (!error) {
       setCompletedCount(count || 0);
     }
@@ -438,7 +438,7 @@ export default function PlayerDashboard() {
       <div className="flex flex-col items-center justify-center min-h-[75vh] px-4">
         <div className="w-full max-w-md glass rounded-2xl p-8 glass-glow-pink text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-brand-pink/10 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none"></div>
-          
+
           <div className="inline-flex items-center justify-center p-3.5 bg-brand-pink/25 text-brand-pink rounded-full mb-5 animate-pulse-slow">
             <Lock className="w-8 h-8" />
           </div>
@@ -536,7 +536,7 @@ export default function PlayerDashboard() {
 
       {/* Main Panel grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        
+
         {/* Left 2 Columns: Player Container */}
         <div className="md:col-span-1 lg:col-span-2 space-y-6">
           <div className="glass rounded-2xl p-6 glass-glow-cyan border border-brand-cyan/25 overflow-hidden">
@@ -544,11 +544,11 @@ export default function PlayerDashboard() {
               <Disc className={`w-6 h-6 text-brand-cyan ${isPlaying ? 'animate-spin-slow' : ''}`} />
               Now Playing
             </h2>
-            
+
             {/* Aspect Widescreen Video Embed Container */}
             <div className="aspect-video w-full bg-dark/80 rounded-xl overflow-hidden border border-dark-border relative">
               <div id="yt-player" className="w-full h-full"></div>
-              
+
               {!currentSong && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-dark/95 z-10">
                   <div className="w-16 h-16 rounded-full bg-dark-accent/40 flex items-center justify-center mb-4 text-slate-500 border border-dark-border">
@@ -610,7 +610,7 @@ export default function PlayerDashboard() {
 
         {/* Right 1 Column: Queue List & QR Code panel */}
         <div className="space-y-6">
-          
+
           {/* QR Code Container */}
           <div className="glass rounded-2xl p-6 border border-dark-border/40 text-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-16 h-16 bg-brand-purple/5 rounded-full blur-xl -ml-4 -mt-4"></div>
@@ -619,10 +619,10 @@ export default function PlayerDashboard() {
               Request Portal QR Code
             </h2>
             <div className="inline-block bg-white p-3 rounded-xl shadow-lg border border-slate-200">
-              <img 
-                src={qrCodeUrl} 
+              <img
+                src={qrCodeUrl}
                 alt="Scan here to request songs"
-                className="w-40 h-40 object-cover" 
+                className="w-40 h-40 object-cover"
               />
             </div>
             <p className="text-[10px] text-brand-purple font-semibold tracking-wider uppercase mt-4">
@@ -706,7 +706,7 @@ export default function PlayerDashboard() {
                 </div>
               ) : (
                 queuedTracks.map((song, idx) => (
-                  <div 
+                  <div
                     key={song.id}
                     className="flex items-center justify-between gap-3 p-3 bg-dark/40 border border-dark-border/50 rounded-xl glass-card-hover group"
                   >
